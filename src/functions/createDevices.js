@@ -91,7 +91,7 @@ const createDevices = async ({ logRef, devicesRef, onlineTime }) => {
          * Save it to devices
          */
         const lastSeen = Date.now();
-        const device = { isOnline: false, lastSeen, macAddress, name: "" };
+        const device = { isOnline: true, lastSeen, macAddress, name: "" };
 
         await devicesRef.push(device);
 
