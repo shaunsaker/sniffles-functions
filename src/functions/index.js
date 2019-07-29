@@ -4,7 +4,7 @@ const createLogs = require("./createLogs");
 const createDevices = require("./createDevices");
 const setLastSeen = require("./setLastSeen");
 const setIsOnline = require("./setIsOnline");
-const onlineTime = 2; // in minutes
+const onlineTime = 5; // in minutes
 
 exports.onRawEvent = functions.database
   .ref("/raw/{rawId}")
