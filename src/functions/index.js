@@ -7,10 +7,11 @@ const functions = require("firebase-functions");
  * {probes: [{address, rssi}]}
  * to format: {macAddress, date}
  *
+ * Save devices {name, macAddress, isOnline, lastSeen}
  */
 exports.onRawEvent = functions.database
   .ref("/raw/{rawId}")
-  .onCreate(snapshot => {
+  .onCreate(async snapshot => {
     /*
      * Get the probes
      * E.g. "{\"probes\":[{\"address\":\"8c:eb:c6:d3:1b:2f\",\"rssi\":-91},{\"address\":\"8c:eb:c6:d3:1b:2f\",\"rssi\":-92}]}"
@@ -22,7 +23,7 @@ exports.onRawEvent = functions.database
      * For each probe, map it to the shape we require
      * And send the event to log
      */
-    probes.forEach(async probe => {
+    for (const probe of probes) {
       const { address: macAddress } = probe;
       const date = Date.now();
       const event = {
@@ -31,21 +32,45 @@ exports.onRawEvent = functions.database
       };
 
       await snapshot.ref.parent.parent.child("log").push(event);
-    });
+    }
 
-    return null;
-  });
+    /*
+     * Create new devices from the logs (if not already present)
+     *
+     * Get the logs from the past two minutes (if any)
+     */
+    let logs;
+    const now = Date.now();
+    const elapsedMinutes = 2;
+    const elapsedTime = elapsedMinutes * 60 * 1000; // elapsed time in ms, e.g. X min * 60 sec * 1000 ms
+    const startAt = now - elapsedTime;
 
-/*
- * onEvent
- *
- * Save devices {name, macAddress, isOnline, lastUpdated}
- *
- * To be a local device, we need to have seen the device at least X times (1)
- * To be an online device, we need to have seen the device within X minutes ago (5)
- */
-exports.onEvent = functions.database
-  .ref("/events/{eventId}")
-  .onCreate(snapshot => {
-    // TODO:
+    await snapshot.ref.parent.parent
+      .child("log")
+      .orderByChild("date")
+      .startAt(startAt)
+      .once("value", logsSnapshot => {
+        logs = logsSnapshot.val();
+      });
+
+    /*
+     * Get the devices
+     */
+    let devices;
+
+    await snapshot.ref.parent.parent
+      .child("devices")
+      .once("value", devicesSnapshot => {
+        devices = devicesSnapshot.val();
+      });
+
+    console.log({ logs, devices });
+
+    /*
+     * Set the isOnline status of all devices
+     *
+     * To be an online device, we need to have seen the device within 5 minutes ago
+     */
+
+    return "";
   });
