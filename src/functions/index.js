@@ -2,7 +2,6 @@ const functions = require("firebase-functions");
 
 const createLogs = require("./createLogs");
 const createDevices = require("./createDevices");
-const setLastSeen = require("./setLastSeen");
 const timeElapsed = 1; // in minutes (arduino updates every 30 seconds)
 
 exports.onRawEvent = functions.database
@@ -20,18 +19,11 @@ exports.onRawEvent = functions.database
     /*
      * If there is a new device in the logs, create it in devices
      */
-    const { logs, devices } = await createDevices({
+    await createDevices({
       logRef,
       devicesRef,
       timeElapsed
     });
-
-    /*
-     *  Set the lastSeen date of all devices in new logs
-     */
-    if (logs) {
-      await setLastSeen({ logs, devices, devicesRef });
-    }
 
     return "";
   });

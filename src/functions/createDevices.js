@@ -1,5 +1,3 @@
-const convertObjectToArray = require("./convertObjectToArray");
-
 const createDevices = async ({ logRef, devicesRef, timeElapsed }) => {
   /*
        * Create new devices from the logs (if not already present)
@@ -25,10 +23,11 @@ const createDevices = async ({ logRef, devicesRef, timeElapsed }) => {
        * Get the devices
        *
        * { '12345678': 
-        { isOnline: true,
-          lastSeen: 1564380413000,
-          macAddress: '8c:eb:c6:d3:1b:2f',
-          name: 'SAKERS Wifi' } }
+          {
+            macAddress: '8c:eb:c6:d3:1b:2f',
+            name: 'SAKERS Wifi' 
+          } 
+        }
        */
   let devices;
 
@@ -42,37 +41,6 @@ const createDevices = async ({ logRef, devicesRef, timeElapsed }) => {
    * Save it to devices
    */
   if (logs) {
-    /*
-     * Get the latest, unique logs
-     */
-    const latestUniqueLogs = {};
-    const uniqueMacAddresses = [];
-    const logsArray = convertObjectToArray(logs);
-
-    /*
-     * Collect the unique mac addresses
-     */
-    logsArray.forEach(({ macAddress }) => {
-      if (!uniqueMacAddresses.includes(macAddress)) {
-        uniqueMacAddresses.push(macAddress);
-      }
-    });
-
-    /*
-     * The latest unique log is the last one to match the appropriate mac address
-     */
-    uniqueMacAddresses.forEach(macAddress => {
-      const latestLog = logsArray
-        .filter(log => {
-          return log.macAddress === macAddress;
-        })
-        .reverse()[0];
-
-      latestUniqueLogs[latestLog.id] = latestLog;
-    });
-
-    logs = latestUniqueLogs;
-
     const logIds = Object.keys(logs);
 
     for (const logId of logIds) {
@@ -92,7 +60,6 @@ const createDevices = async ({ logRef, devicesRef, timeElapsed }) => {
          */
         const now = Date.now();
         const device = {
-          lastSeen: now,
           macAddress,
           name: "",
           dateCreated: now
