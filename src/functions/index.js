@@ -3,8 +3,7 @@ const functions = require("firebase-functions");
 const createLogs = require("./createLogs");
 const createDevices = require("./createDevices");
 const setLastSeen = require("./setLastSeen");
-const setIsOnline = require("./setIsOnline");
-const onlineTime = 30; // in minutes
+const timeElapsed = 1; // in minutes (arduino updates every 30 seconds)
 
 exports.onRawEvent = functions.database
   .ref("/raw/{rawId}")
@@ -24,7 +23,7 @@ exports.onRawEvent = functions.database
     const { logs, devices } = await createDevices({
       logRef,
       devicesRef,
-      onlineTime
+      timeElapsed
     });
 
     /*
@@ -33,12 +32,6 @@ exports.onRawEvent = functions.database
     if (logs) {
       await setLastSeen({ logs, devices, devicesRef });
     }
-
-    /*
-     * Set the isOnline status of all devices
-     */
-    const newLogs = logs || {};
-    await setIsOnline({ logs: newLogs, devices, devicesRef });
 
     return "";
   });

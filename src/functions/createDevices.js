@@ -1,6 +1,6 @@
 const convertObjectToArray = require("./convertObjectToArray");
 
-const createDevices = async ({ logRef, devicesRef, onlineTime }) => {
+const createDevices = async ({ logRef, devicesRef, timeElapsed }) => {
   /*
        * Create new devices from the logs (if not already present)
        *
@@ -11,7 +11,7 @@ const createDevices = async ({ logRef, devicesRef, onlineTime }) => {
        */
   let logs;
   const now = Date.now();
-  const elapsedTime = onlineTime * 60 * 1000; // elapsed time in ms, e.g. X min * 60 sec * 1000 ms
+  const elapsedTime = timeElapsed * 60 * 1000; // elapsed time in ms, e.g. X min * 60 sec * 1000 ms
   const startAt = now - elapsedTime;
 
   await logRef
