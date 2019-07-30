@@ -17,22 +17,17 @@ const setLastSeen = async ({ logs, devices, devicesRef }) => {
     const device = devicesArray.filter(item => {
       return item.macAddress === macAddress;
     })[0];
-    const { lastSeen, id: deviceId, timesSeen } = device;
+    const { lastSeen, id: deviceId } = device;
 
     /*
      * Only if it is different
      */
     if (lastSeen !== date) {
-      const newTimesSeen = (timesSeen || 1) + 1;
-
       await devicesRef.child(deviceId).update({
-        lastSeen,
-        timesSeen: newTimesSeen
+        lastSeen
       });
 
-      console.log(
-        `Updated ${macAddress} to date: ${date} and timesSeen: ${newTimesSeen}`
-      );
+      console.log(`Updated ${macAddress} to date: ${date}`);
     } else {
       console.log(`${macAddress} is up to date.`);
     }
