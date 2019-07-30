@@ -96,7 +96,8 @@ const createDevices = async ({ logRef, devicesRef, onlineTime }) => {
           lastSeen: now,
           macAddress,
           name: "",
-          dateCreated: now
+          dateCreated: now,
+          timesSeen: 1
         };
 
         await devicesRef.push(device);
