@@ -1,12 +1,12 @@
 const createDevices = async ({ logRef, devicesRef, timeElapsed }) => {
   /*
-       * Create new devices from the logs (if not already present)
-       *
-       * Get the logs from the past X minutes (if any)
-       * 
-       * { '-LkwTfB-uwJsCohBHUh0': { date: 1564382769518, macAddress: '8c:eb:c6:d3:1b:2f' },
-       '-LkwTfI5cFDF2s6-i1sI': { date: 1564382770379, macAddress: '8c:eb:c6:d3:1b:2f' } }
-       */
+    * Create new devices from the logs (if not already present)
+    *
+    * Get the logs from the past X minutes (if any)
+    * 
+    * { '-LkwTfB-uwJsCohBHUh0': { date: 1564382769518, macAddress: '8c:eb:c6:d3:1b:2f' },
+    '-LkwTfI5cFDF2s6-i1sI': { date: 1564382770379, macAddress: '8c:eb:c6:d3:1b:2f' } }
+    */
   let logs;
   const now = Date.now();
   const elapsedTime = timeElapsed * 60 * 1000; // elapsed time in ms, e.g. X min * 60 sec * 1000 ms
@@ -46,9 +46,9 @@ const createDevices = async ({ logRef, devicesRef, timeElapsed }) => {
     for (const logId of logIds) {
       const { macAddress } = logs[logId];
       const isPresent = Object.keys(devices).filter(deviceId => {
-        const { macAddress: deviceMacAddress } = devices[deviceId];
+        const device = devices[deviceId];
 
-        return deviceMacAddress === macAddress;
+        return device.macAddress === macAddress;
       }).length
         ? true
         : false;
@@ -73,8 +73,6 @@ const createDevices = async ({ logRef, devicesRef, timeElapsed }) => {
       }
     }
   }
-
-  return { logs, devices };
 };
 
 module.exports = createDevices;
