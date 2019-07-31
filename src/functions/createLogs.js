@@ -11,13 +11,21 @@ const createLogs = async ({ rawEvent, logRef }) => {
    * Get the unique addresses
    */
   const uniqueAddresses = [];
+  const ignoredAddresses = ["da:a1:19"];
   const probesArray = convertObjectToArray(probes);
 
   /*
    * Collect the unique mac addresses
+   * If it's not an ignored address
    */
   probesArray.forEach(({ address }) => {
-    if (!uniqueAddresses.includes(address)) {
+    const isIgnoredAddress = ignoredAddresses.filter(
+      item => address.indexOf(item) > -1
+    )[0]
+      ? true
+      : false;
+
+    if (!uniqueAddresses.includes(address) && !isIgnoredAddress) {
       uniqueAddresses.push(address);
     }
   });
