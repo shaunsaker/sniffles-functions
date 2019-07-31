@@ -6,7 +6,6 @@ const createLogs = async ({ rawEvent, logRef }) => {
    * E.g. "{\"probes\":[{\"address\":\"8c:eb:c6:d3:1b:2f\",\"rssi\":-91},{\"address\":\"8c:eb:c6:d3:1b:2f\",\"rssi\":-92}]}"
    */
   let { probes } = JSON.parse(rawEvent);
-  console.log({ probes });
 
   /*
    * Get the unique addresses
@@ -22,8 +21,6 @@ const createLogs = async ({ rawEvent, logRef }) => {
       uniqueAddresses.push(address);
     }
   });
-
-  console.log({ uniqueAddresses });
 
   /*
    * For each address, send a new log event
