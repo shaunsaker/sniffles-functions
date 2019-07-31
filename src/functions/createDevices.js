@@ -65,7 +65,7 @@ const createDevices = async ({ logRef, devicesRef, timeElapsed }) => {
           dateCreated: now
         };
 
-        await devicesRef.push(device);
+        await devicesRef.child(macAddress).set(device);
 
         console.log(`Saved device: ${macAddress}.`);
       } else {
