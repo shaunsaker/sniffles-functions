@@ -75,24 +75,28 @@ exports.onRawEvent = functions.database
       }).length
         ? true
         : false;
+      const now = Date.now();
 
       if (!isPresent) {
         /*
          * If it's not present
          * Save it to devices
          */
-        const now = Date.now();
+
         const device = {
           macAddress,
           name: "",
-          dateCreated: now
+          dateCreated: now,
+          lastSeen: now
         };
 
         await devicesRef.child(macAddress).set(device);
 
         console.log(`Saved device: ${macAddress}.`);
       } else {
-        console.log(`Device ${macAddress} is already present.`);
+        await devicesRef.child(macAddress).update({ lastSeen: now });
+
+        console.log(`Updated device: ${macAddress}`);
       }
     }
 
