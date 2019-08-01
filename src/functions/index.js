@@ -1,29 +1,100 @@
 const functions = require("firebase-functions");
 
-const createLogs = require("./createLogs");
-const createDevices = require("./createDevices");
-const timeElapsed = 1; // in minutes (arduino updates every 30 seconds)
+const convertObjectToArray = require("./convertObjectToArray");
 
 exports.onRawEvent = functions.database
   .ref("/raw/{rawId}")
   .onCreate(async snapshot => {
-    const logRef = snapshot.ref.parent.parent.child("log");
-    const devicesRef = snapshot.ref.parent.parent.child("devices");
-
     /*
      * Create the logs from the probes
      */
     const rawEvent = snapshot.val();
-    createLogs({ rawEvent, logRef });
 
     /*
-     * If there is a new device in the logs, create it in devices
+     * Get the probes
+     * E.g. "{\"probes\":[{\"address\":\"8c:eb:c6:d3:1b:2f\",\"rssi\":-91},{\"address\":\"8c:eb:c6:d3:1b:2f\",\"rssi\":-92}]}"
      */
-    await createDevices({
-      logRef,
-      devicesRef,
-      timeElapsed
+    const { probes } = JSON.parse(rawEvent);
+
+    /*
+     * Get the unique addresses
+     */
+    const logs = [];
+    const ignoredAddresses = ["da:a1:19"];
+    const probesArray = convertObjectToArray(probes);
+
+    /*
+     * Collect the unique mac addresses
+     * If it's not an ignored address
+     */
+    probesArray.forEach(({ address, rssi }) => {
+      const isIgnoredAddress = ignoredAddresses.filter(
+        item => address.indexOf(item) > -1
+      )[0]
+        ? true
+        : false;
+
+      if (!isIgnoredAddress) {
+        logs.push({
+          macAddress: address,
+          rssi
+        });
+      }
     });
+
+    /*
+     * For each address, send a new log event
+     */
+    for (const log of logs) {
+      const { macAddress, rssi } = log;
+      const date = Date.now();
+      const event = {
+        macAddress,
+        rssi,
+        date
+      };
+
+      await snapshot.ref.parent.parent.child("log").push(event);
+
+      console.log(`Saved log from ${macAddress}`);
+    }
+
+    let devices;
+    const devicesRef = snapshot.ref.parent.parent.child("devices");
+
+    await devicesRef.once("value", devicesSnapshot => {
+      devices = devicesSnapshot.val() || {};
+    });
+
+    for (const log of logs) {
+      const { macAddress } = log;
+      const isPresent = Object.keys(devices).filter(deviceId => {
+        const device = devices[deviceId];
+
+        return device.macAddress === macAddress;
+      }).length
+        ? true
+        : false;
+
+      if (!isPresent) {
+        /*
+         * If it's not present
+         * Save it to devices
+         */
+        const now = Date.now();
+        const device = {
+          macAddress,
+          name: "",
+          dateCreated: now
+        };
+
+        await devicesRef.child(macAddress).set(device);
+
+        console.log(`Saved device: ${macAddress}.`);
+      } else {
+        console.log(`Device ${macAddress} is already present.`);
+      }
+    }
 
     return "";
   });

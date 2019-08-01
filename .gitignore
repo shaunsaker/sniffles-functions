@@ -2,5 +2,4 @@ node_modules/
 
 # Firebase
 firebase-debug.log
-testing.js
 serviceAccount.json
