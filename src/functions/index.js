@@ -20,7 +20,7 @@ exports.onRawEvent = functions.database
      * Get the unique addresses
      */
     const logs = [];
-    const ignoredAddresses = ["da:a1:19"];
+    const ignoredAddresses = [];
     const probesArray = convertObjectToArray(probes);
 
     /*
