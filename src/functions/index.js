@@ -67,9 +67,11 @@ exports.onRawEvent = functions.database
     });
 
     for (const log of logs) {
-      const { macAddress } = log;
+      const { macAddress, date } = log;
+      let lastSeen;
       const isPresent = Object.keys(devices).filter(deviceId => {
         const device = devices[deviceId];
+        lastSeen = device.lastSeen; // eslint-disable-line
 
         return device.macAddress === macAddress;
       }).length
@@ -94,9 +96,23 @@ exports.onRawEvent = functions.database
 
         console.log(`Saved device: ${macAddress}.`);
       } else {
-        await devicesRef.child(macAddress).update({ lastSeen: now });
+        /*
+         * Save isRecurring flag
+         * = is present and the log is greater than one minute apart from lastSeen
+         */
+        const difference = date - lastSeen;
+        const isRecurring = difference < 1000 * 60; // ms * sec
+        const data = { lastSeen: now };
 
-        console.log(`Updated device: ${macAddress}`);
+        if (isRecurring) {
+          data.isRecurring = true;
+        }
+
+        await devicesRef.child(macAddress).update(data);
+
+        console.log(
+          `Updated device: ${macAddress} ${isRecurring ? "is recurring" : ""}`
+        );
       }
     }
 
