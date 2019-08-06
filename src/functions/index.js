@@ -67,7 +67,7 @@ exports.onRawEvent = functions.database
     });
 
     for (const log of logs) {
-      const { macAddress, date } = log;
+      const { macAddress } = log;
       let lastSeen;
       const isPresent = Object.keys(devices).filter(deviceId => {
         const device = devices[deviceId];
@@ -100,8 +100,8 @@ exports.onRawEvent = functions.database
          * Save isRecurring flag
          * = is present and the log is greater than one minute apart from lastSeen
          */
-        const difference = date - lastSeen;
-        const isRecurring = difference < 1000 * 60; // ms * sec
+        const difference = now - lastSeen;
+        const isRecurring = difference > 1000 * 60; // ms * sec
         const data = { lastSeen: now };
 
         if (isRecurring) {
