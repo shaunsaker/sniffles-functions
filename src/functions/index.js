@@ -3,7 +3,9 @@ const functions = require("firebase-functions");
 exports.onRawEvent = functions.database
   .ref("/raw/{rawId}")
   .onCreate(async snapshot => {
-    const { macAddress, isOnline } = snapshot.val();
+    const rawEventString = snapshot.val();
+    const rawEvent = JSON.parse(rawEventString);
+    const { macAddress, isOnline } = rawEvent;
 
     /*
      * Create a new log
