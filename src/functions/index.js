@@ -28,7 +28,7 @@ exports.onRawEvent = functions.database
 
     await devicesRef.child(macAddress).update(event);
 
-    console.log(`Updated device: ${macAddress}`);
+    console.log(`${macAddress} went ${isOnline ? "online" : "offline"}`);
 
     return "";
   });
