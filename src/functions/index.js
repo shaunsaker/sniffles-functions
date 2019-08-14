@@ -28,5 +28,7 @@ exports.onRawEvent = functions.database
 
     await devicesRef.child(macAddress).update(event);
 
+    console.log(`Updated device: ${macAddress}`);
+
     return "";
   });
