@@ -5,7 +5,7 @@ exports.onRawEvent = functions.database
   .onCreate(async snapshot => {
     const rawEventString = snapshot.val();
     const rawEvent = JSON.parse(rawEventString);
-    const { macAddress, isOnline } = rawEvent;
+    const { macAddress, isOnline, bssid, rssi } = rawEvent;
 
     /*
      * Create a new log
@@ -14,7 +14,9 @@ exports.onRawEvent = functions.database
     const event = {
       macAddress,
       isOnline,
-      date
+      date,
+      bssid,
+      rssi
     };
 
     await snapshot.ref.parent.parent.child("log").push(event);
